@@ -1,5 +1,9 @@
 module SimpleRegressionGP
 
-# Write your package code here.
+    using Optim, Random, Distributions, Printf, LinearAlgebra
+
+    using PyPlot, MiscUtil
+
+    include("kernels.jl")
 
 end
