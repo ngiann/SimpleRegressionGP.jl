@@ -43,3 +43,15 @@ end
 
 
 linear(x1, x2; c=c, σ²=σ²) = σ² * (x1 - c) * (x2 - c)
+
+function calculatekernelmatrix(k, ρ, σ², x)
+
+    calculatekernelmatrix(k, ρ, σ², x, x)
+
+end
+
+function calculatekernelmatrix(k, ρ, σ², x1, x2)
+
+    [k(a, b; ρ = ρ, σ² = σ²) for a in x1, b in x2]
+
+end

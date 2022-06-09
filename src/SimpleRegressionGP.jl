@@ -5,5 +5,7 @@ module SimpleRegressionGP
     using PyPlot, MiscUtil
 
     include("kernels.jl")
-
+    include("simpleregressiongp.jl")
+    
+    export simpleregressiongp
 end
