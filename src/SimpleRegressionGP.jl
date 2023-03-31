@@ -2,7 +2,7 @@ module SimpleRegressionGP
 
     using Optim, Random, Distributions, Printf, LinearAlgebra
 
-    using PyPlot, MiscUtil
+    using MiscUtil
 
     include("kernels.jl")
     include("simpleregressiongp.jl")
