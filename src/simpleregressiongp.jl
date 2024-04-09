@@ -1,6 +1,6 @@
-function simpleregressiongp(x, y, σ; iterations = iterations, seed = 1, numberofrestarts = 1, kernel = kernel)
+function simpleregressiongp(x, y; iterations = iterations, seed = 1, numberofrestarts = 1, kernel = kernel)
 
-    @assert(length(x) == length(y) == length(σ))
+    @assert(length(x) == length(y))
 
     rg = MersenneTwister(seed)
 
@@ -20,9 +20,9 @@ function simpleregressiongp(x, y, σ; iterations = iterations, seed = 1, numbero
 
     function objective(param)
 
-        local ρ, α, ν², b = unpack(param)
+        local ρ, α, σ², b = unpack(param)
 
-        local K = calculatekernelmatrix(kernel, ρ, α, x) + Diagonal(σ.^2) + ν²*I
+        local K = Symmetric(calculatekernelmatrix(kernel, ρ, α, x) + σ²*I + JITTER*I)
 
         -logpdf(MvNormal(zeros(N), K), y .- b)
 
@@ -39,9 +39,9 @@ function simpleregressiongp(x, y, σ; iterations = iterations, seed = 1, numbero
 
     bestindex = argmin([s.minimum for s in solutions])
 
-    ρopt, αopt, ν²opt, bopt = unpack(solutions[bestindex].minimizer)
+    ρopt, αopt, σ²opt, bopt = unpack(solutions[bestindex].minimizer)
 
-    K = calculatekernelmatrix(kernel, ρopt, αopt, x) + Diagonal(σ.^2) + ν²opt*I
+    K = Symmetric(calculatekernelmatrix(kernel, ρopt, αopt, x)  + σ²opt*I + JITTER*I)
 
 
 
@@ -54,9 +54,7 @@ function simpleregressiongp(x, y, σ; iterations = iterations, seed = 1, numbero
         cB = calculatekernelmatrix(kernel, ρopt, αopt, xtest)
 
         # full predictive covariance
-        Σpred = cB - kB✴' * (K \ kB✴)+ JITTER*I
-
-        makematrixsymmetric!(Σpred)
+        Σpred = Symmetric(cB - kB✴' * (K \ kB✴) + JITTER*I)
 
         # predictive mean
 
@@ -66,6 +64,14 @@ function simpleregressiongp(x, y, σ; iterations = iterations, seed = 1, numbero
 
     end
 
-    return solutions[bestindex].minimum, predicttest, (ρopt, αopt, ν²opt, bopt)
+    function testloglikelihood(xtest, ytest)
+
+        μpred, Σpred = predicttest(xtest)
+
+        logpdf(MvNormal(μpred, Σpred), ytest)
+
+    end
+
+    return solutions[bestindex].minimum, predicttest, testloglikelihood
 
 end
