@@ -44,6 +44,29 @@ end
 
 linear(x1, x2; c=c, σ²=σ²) = σ² * (x1 - c) * (x2 - c)
 
+
+
+
+sparsecov(x1, x2; ρ=ρ, σ²=σ²) = SparseCov(abs(x1-x2); ρ=ρ, σ²=σ²)
+
+function SparseCov(d; ρ=ρ, σ²=σ²)
+
+    if d >= ρ
+
+        return zero(eltype(ρ))
+
+    end
+
+    term1 = (2 + cos(2π*d/ρ)) / 3
+
+    term2 = (1 - d/ρ)
+
+    term3 = (1/2π)*sin(2π*d/ρ)
+
+    σ² * (term1 * term2 + term3)
+
+end
+
 function calculatekernelmatrix(k, ρ, σ², x)
 
     calculatekernelmatrix(k, ρ, σ², x, x)
